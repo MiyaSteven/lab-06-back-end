@@ -38,7 +38,7 @@ app.get('/weather', (request, response) => {
   response.send(weatherArr);
   }
   catch(err){
-    console.log(err)
+    response.status(500).send(err)
   }
 });
   console.log(weatherArr)
