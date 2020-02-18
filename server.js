@@ -8,19 +8,20 @@ require('dotenv').config();
 const cors = require('cors');
 app.use(cors());
 
-app.get('/', (request, response) => {
+app.get('/location', (request, response) => {
+  let city = request.query.city;
+  let geoData = require('/data/geo.json');
 
-}) 
+  let location = new City(city, geoData[0]);
+  response.send(location);
+});
 
-// app.get('/location', (req, res) => {
-//   let city = req.query.city;
-//   let location = new City;
-
-// });
-
-// function City(){
-
-// }
+function City(city, obj){
+  this.search_querty = city;
+  this.formatted_query = obj.display_name;
+  this.latitude = obj.lat;
+  this.longitude = obj.lon;
+}
 
 const PORT = process.env.PORT || 3001;
 app.listen(PORT, () => {
