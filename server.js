@@ -23,19 +23,23 @@ function City(city, obj){
 ////////////////////////////////////WEATHER////////////////////////////////
 let weatherArr = [];
 
-app.get('/weather', (request, response) => {
-  try {
+function handleErrors(){
+  app.listen(PORT, () => {
+  });
+}
+
+
+function getWeather(){
+  app.get('/weather', (request, response) => {
     let weatherData = require('./data/darksky.json');
     for (let i = 0; i < weatherData.daily.data.length; i++){
       let weather = new Weather(weatherData, i);
       weatherArr.push(weather);
     }
     response.send(weatherArr);
-  } catch (err) {
-    console.log(err);
-  }
-});
-console.log(weatherArr);
+  });
+}
+getWeather();
 
 function Weather(obj, index){
   this.summary = obj.daily.data[index].summary;
