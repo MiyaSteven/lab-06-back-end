@@ -10,7 +10,7 @@ app.use(cors());
 
 app.get('/location', (request, response) => {
   let city = request.query.city;
-  let geoData = require('/data/geo.json');
+  let geoData = require('./data/geo.json');
 
   let location = new City(city, geoData[0]);
   response.send(location);
