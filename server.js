@@ -24,13 +24,16 @@ function City(city, obj){
 let weatherArr = [];
 
 app.get('/weather', (request, response) => {
-  let newWeather = request.query.data;
-  let weatherData = require('./data/darksky.json');
-  for (let i = 0; i < weatherData.daily.data.length; i++){
-    let weather = new Weather(weatherData, i);
-    weatherArr.push(weather);
+  try {
+    let weatherData = require('./data/darksky.json');
+    for (let i = 0; i < weatherData.daily.data.length; i++){
+      let weather = new Weather(weatherData, i);
+      weatherArr.push(weather);
+    }
+    response.send(weatherArr);
+  } catch (err) {
+    console.log(err);
   }
-  response.send(weatherArr);
 });
 console.log(weatherArr);
 
@@ -41,6 +44,7 @@ function Weather(obj, index){
 }
 
 const PORT = process.env.PORT || 3001;
+
 app.listen(PORT, () => {
   console.log(`listening on ${PORT}`);
 });
