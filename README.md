@@ -61,11 +61,70 @@ Finish time: 1:35
 Actual time needed to complete: 1 hour 5 minutes
 
 
+
 Number and name of feature: 4 Errors
 
 Estimate of time needed to complete: 1 hour
 
 Start time: 1:35
+
+Finish time: 2:00
+
+Actual time needed to complete: 25 minutes
+
+Number and name of feature: 5 .map
+
+Estimate of time needed to complete: 1 hour
+
+Start time: 9:00
+
+Finish time: 9:30
+
+Actual time needed to complete: 30 minutes
+
+
+
+Number and name of feature: 6 Location API
+
+Estimate of time needed to complete: 1 hour
+
+Start time: 9:30
+
+Finish time: 10:30
+
+Actual time needed to complete: 1 hour
+
+
+
+Number and name of feature: 7 Weather API
+
+Estimate of time needed to complete: 3 hour
+
+Start time: 10:30
+
+Finish time: 11:30
+
+Actual time needed to complete: 1 hour
+
+
+
+Number and name of feature: 8 Hiking API
+
+Estimate of time needed to complete: 3 hour
+
+Start time: 12:00
+
+Finish time: 1:15
+
+Actual time needed to complete: 1 hour 15 minutes
+
+
+
+Number and name of feature: 
+
+Estimate of time needed to complete: 
+
+Start time: 
 
 Finish time: 
 

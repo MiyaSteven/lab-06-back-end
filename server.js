@@ -71,8 +71,7 @@ app.get('/trails',(request, response)=>{
     .then(results =>{
       let hikingResults = results.body.trails.map((obj)=> new Hiking(obj));
       response.send(hikingResults)
-      // console.log('super agent trails body',request.query);
-      // let trailsResults = results.body
+
     })
 })
 
