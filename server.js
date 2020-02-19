@@ -32,25 +32,27 @@ function City(city, obj){
 
 ////////////////////////////////////WEATHER////////////////////////////////
 
-// function getWeather(){
-//   app.get('/weather', (request, response) => {
-//     let {latitude, longitude,} = request.query;
-//     let url = `https://api.darksky.net/forecast/${process.env.GEOCODE_API}/${latitude},${longitude}`;
-//     superagent.get(url)
-//       .then(results => {
-//         let newWeather = new Weather(location, results);
-//         let weatherArr = weatherArr.map(newWeather);
-//         response.send(weatherArr);
-//       });
-//   });
-// }
-// getWeather();
+app.get('/weather', (request, response) => {
+  try {
+    let {latitude, longitude,} = request.query;
+    let url = `https://api.darksky.net/forecast/${process.env.DARKSKY_API}/${latitude},${longitude}`;
 
-// function Weather(obj, index){
-//   this.summary = obj.daily.data[index].summary;
-//   let date = new Date(obj.daily.data[index].time);
-//   this.time = date.toDateString();
-// }
+    superagent.get(url)
+      .then(results => {
+        let weatherArr = weatherArr.map(newWeather);
+        let newWeather = new Weather(location, results);
+        response.send(weatherArr);
+      });
+  } catch (error) {
+    response.status(500).send('Error 500');
+  }
+});
+
+function Weather(obj){
+  this.summary = obj.summary;
+  let date = new Date(obj.time);
+  this.time = date.toDateString();
+}
 
 const PORT = process.env.PORT || 3001;
 
