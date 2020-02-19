@@ -24,33 +24,26 @@ function City(city, obj){
 }
 
 ////////////////////////////////////WEATHER////////////////////////////////
-  let weatherArr = [];
-
+let weatherArr = [];
 app.get('/weather', (request, response) => {
   try{
   let newWeather = request.query.data;
   let weatherData = require('./data/darksky.json');
+  let weatherMap = weatherData.daily.data.map((obj) => (new Weather(weatherData, i)))
 
-  for(let i =0; i < weatherData.daily.data.length; i++){
-  let weather = new Weather(weatherData, i);
-  weatherArr.push(weather);
-  }
-  response.send(weatherArr);
+  response.send(weatherMap);
   }
   catch(err){
     response.status(500).send(err)
   }
 });
   console.log(weatherArr)
-
 function Weather(obj, index){
   let date = new Date(obj.daily.data[index].time)
   this.forecast = obj.daily.data[index].summary;
   this.time = date.toDateString();
 }
-
 const PORT = process.env.PORT || 3001;
 app.listen(PORT, () => {
   console.log(`listening on ${PORT}`);
 });
-
