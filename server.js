@@ -14,13 +14,39 @@ app.get('/location', (request, response) => {
 
     superagent.get(url)
       .then(results => {
-        let geoData = results.body;
-        let newLocation = new City(city, geoData[0]);
+        let newLocation = new City(city, results.body[0]);
         response.send(newLocation);
       });
   } catch (error) {
     response.status(500).send('Error 500');
   }
+});
+
+app.get('/weather', (request, response) => {
+  try {
+    let locationObject = request.query;
+    let url = `https://api.darksky.net/forecast/${process.env.DARKSKY_API}/${locationObject.latitude},${locationObject.longitude}`;
+
+    superagent.get(url)
+      .then(results => {
+        let weatherObj = results.body.daily.data;
+        let weatherMap = weatherObj.map(day => new Weather(day));
+        response.status(200).send(weatherMap);
+      });
+  } catch (error) {
+    response.status(500).send('Error 500');
+  }
+});
+
+app.get('/trails', (request, response) => {
+  let {latitude, longitude,} = request.query;
+  let url = `https://www.hikingproject.com/data/get-trails?lat=${latitude}&lon=${longitude}&maxDistance=10&key=${process.env.HIKING_API}`;
+
+  superagent.get(url)
+    .then(results => {
+      let dataObj = results.body.trails.map(trail => new Trail(trail));
+      response.status(200).send(dataObj);
+    });
 });
 
 function City(city, obj){
@@ -30,29 +56,26 @@ function City(city, obj){
   this.longitude = obj.lon;
 }
 
-////////////////////////////////////WEATHER////////////////////////////////
-
-app.get('/weather', (request, response) => {
-  try {
-    let {latitude, longitude,} = request.query;
-    let url = `https://api.darksky.net/forecast/${process.env.DARKSKY_API}/${latitude},${longitude}`;
-
-    superagent.get(url)
-      .then(results => {
-        let weatherArr = weatherArr.map(newWeather);
-        let newWeather = new Weather(location, results);
-        response.send(weatherArr);
-      });
-  } catch (error) {
-    response.status(500).send('Error 500');
-  }
-});
-
 function Weather(obj){
   this.summary = obj.summary;
-  let date = new Date(obj.time);
-  this.time = date.toDateString();
+  this.time = new Date(obj.time * 1000).toDateString();
 }
+
+function Trail(obj){
+  this.name = obj.name;
+  this.location = obj.location;
+  this.length = obj.length;
+  this.stars = obj.stars;
+  this.star_votes = obj.starVotes;
+  this.summary = obj.summary;
+  this.trail_url = obj.url;
+  this.conditions = obj.conditionStatus;
+  this.condition_date = obj.conditionDate.slice(0,10);
+  this.condition_time = obj.conditionDate.slice(11,19);
+}
+
+
+
 
 const PORT = process.env.PORT || 3001;
 
