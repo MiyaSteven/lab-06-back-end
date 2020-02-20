@@ -4,23 +4,59 @@ const app = express();
 const superagent = require('superagent');
 require('dotenv').config();
 
+const pg = require('pg');
 const cors = require('cors');
 app.use(cors());
+const client = new pg.Client(process.env.DATABASE_URL);
+client.on('error', err => console.error(err));
+
+app.get('/add', (request, response) => {
+  let first = request.query.first;
+  let last = request.query.last;
+
+  let SQL = 'INSERT INTO people (first_name, last_name) VALUES ($1, $2)';
+  let safeValues = [first, last];
+
+  client.query(SQL, safeValues);
+});
+
+app.get('/display', (request, response) => {
+  let SQL = 'SELECT * FROM locations';
+
+  client.query(SQL)
+    .then(results => {
+      response.json(results.rows);
+    });
+});
 
 app.get('/location', (request, response) => {
-  try {
-    let city = request.query.city;
-    let url = `https://us1.locationiq.com/v1/search.php?key=${process.env.GEOCODE_API}&q=${city}&format=json`;
+  let city = request.query.city;
+  let cityData = request.city.display_name;
+  let latitude = request.city.latitude;
+  let longitude = request.city.longitde;
 
-    superagent.get(url)
-      .then(results => {
-        let newLocation = new City(city, results.body[0]);
-        response.send(newLocation);
-      });
-  } catch (error) {
-    response.status(500).send('Error 500');
-  }
+  let SQL = 'INSERT INTO locations (city, city_data, latitude, longitude) VALUES ($1, $2, $3, $4)';
+  let safeValues = [city, cityData, latitude, longitude];
+
+  client.query(SQL, safeValues);
 });
+app.get('/display', (request, response) => {
+  let SQL = 'SELECT * FROM locations';
+  client.query(SQL)
+    .then(results => {
+      response.json(results.rows);
+    });
+});
+// // .then(results => {
+// let url = `https://us1.locationiq.com/v1/search.php?key=${process.env.GEOCODE_API}&q=${city}&format=json`;
+//   response.json(results.rows);
+//   }).catch();
+//   superagent.get(url)
+//     .then(results => {
+//       let newLocation = new City(city, results.body[0]);
+//       response.send(newLocation);
+//     });
+// });
 
 app.get('/weather', (request, response) => {
   try {
@@ -49,6 +85,10 @@ app.get('/trails', (request, response) => {
     });
 });
 
+app.get('*', (request, response) => {
+  response.status(404).send('Page not found');
+});
+
 function City(city, obj){
   this.search_query = city;
   this.formatted_query = obj.display_name;
@@ -74,9 +114,6 @@ function Trail(obj){
   this.condition_time = obj.conditionDate.slice(11,19);
 }
 
-
-
-
 const PORT = process.env.PORT || 3001;
 
 // app.get('*', (request, response) => {
@@ -87,7 +124,8 @@ const PORT = process.env.PORT || 3001;
 //   response.status(500).send('500 error!!!!');
 // });
 
-app.listen(PORT, () => {
-  console.log(`listening on ${PORT}`);
-});
-
+client.connect()
+  .then(
+    app.listen(PORT, () =>
+      console.log(`listening on ${PORT}`))
+  );
