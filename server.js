@@ -3,28 +3,58 @@
 const express = require('express');
 const app = express();
 const superagent = require('superagent');
+const pg = require('pg')
 require('dotenv').config();
+
+const client = new pg.Client(process.env.DATABASE_URL);
+client.on('error', err => console.error(err));
 
 const cors = require('cors');
 app.use(cors());
 
+const PORT = process.env.PORT || 3001;
+client.connect()
+.then(()=>{
+app.listen(PORT, () => {
+  console.log(`listening on ${PORT}`);
+});
+});
 
+app.get('/add', (request, response)=>{
+  let city = request.query.city;
 
+});
+
+//////////////////////////////////////LOCATION/////////////////////////////////////////////////
 
 app.get('/location', (request, response) => {
   let city = request.query.city;
-  let url = `https://us1.locationiq.com/v1/search.php?key=${process.env.GEOCODE_API}&q=${city}&format=json`;
+  let SQL = 'SELECT * FROM locations WHERE search_query=($1)';
+  let safeValues = [city];
+  client.query(SQL, safeValues).then(data =>{
+    if(data.rowCount){
+      response.send(data.rows[0]);
+      console.log('city in DB');
+    }else{
+      let url = `https://us1.locationiq.com/v1/search.php?key=${process.env.GEOCODE_API}&q=${city}&format=json`;
 
     superagent.get(url)
       .then(results => {
         let geoData = results.body;
         let location = new City(city, geoData[0]);
+        let insertSql = 'INSERT INTO locations (search_query, formatted_query, latitude, longitude) VALUES ($1, $2, $3, $4)';
+        let insertSafeValue = [location.search_query, location.formatted_query, location.latitude, location.longitude];
+        client.query(insertSql, insertSafeValue);
         response.status(200).send(location);
+        console.log('city not in DB, going to API');
       })
       .catch(err=>{
         console.error(err)
         response.status(500).send(err)
         });
+
+    }
+  })
 
 });
 
@@ -55,10 +85,6 @@ function Weather(obj){
   this.forecast = obj.summary;
   this.time = new Date(obj.time * 1000).toDateString();
 }
-const PORT = process.env.PORT || 3001;
-app.listen(PORT, () => {
-  console.log(`listening on ${PORT}`);
-});
 
 
 ////////////////////////////////////////// HIKING /////////////////////////////////
