@@ -10,6 +10,7 @@ const cors = require('cors');
 app.use(cors());
 const client = new pg.Client(process.env.DATABASE_URL);
 client.on('error', err => console.error(err));
+<<<<<<< Updated upstream
 
 app.get('/location', (request, response) => {
   let city = request.query.city;
@@ -44,6 +45,46 @@ app.get('/location', (request, response) => {
 //       response.json(results.rows);
 //     });
 // });
+=======
+
+app.get('/add', (request, response) => {
+  let first = request.query.first;
+  let last = request.query.last;
+
+  let SQL = 'INSERT INTO people (first_name, last_name) VALUES ($1, $2)';
+  let safeValues = [first, last];
+
+  client.query(SQL, safeValues);
+});
+
+app.get('/display', (request, response) => {
+  let SQL = 'SELECT * FROM locations';
+
+  client.query(SQL)
+    .then(results => {
+      response.json(results.rows);
+    });
+});
+
+app.get('/location', (request, response) => {
+  let city = request.query.city;
+  let cityData = request.city.display_name;
+  let latitude = request.city.latitude;
+  let longitude = request.city.longitde;
+
+  let SQL = 'INSERT INTO locations (city, city_data, latitude, longitude) VALUES ($1, $2, $3, $4)';
+  let safeValues = [city, cityData, latitude, longitude];
+
+  client.query(SQL, safeValues);
+});
+app.get('/display', (request, response) => {
+  let SQL = 'SELECT * FROM locations';
+  client.query(SQL)
+    .then(results => {
+      response.json(results.rows);
+    });
+});
+>>>>>>> Stashed changes
 // // .then(results => {
 // let url = `https://us1.locationiq.com/v1/search.php?key=${process.env.GEOCODE_API}&q=${city}&format=json`;
 //   response.json(results.rows);
