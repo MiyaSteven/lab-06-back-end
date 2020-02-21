@@ -1,10 +1,10 @@
 'use strict';
 
 const express = require('express');
+require('dotenv').config();
 const app = express();
 const superagent = require('superagent');
 const pg = require('pg')
-require('dotenv').config();
 
 const client = new pg.Client(process.env.DATABASE_URL);
 client.on('error', err => console.error(err));
@@ -141,3 +141,29 @@ function Movies(obj){
     this.popular = obj.popularity;
     this.released_on = obj.release_date;
 };
+
+/////////////////////////////////////////////// YELP /////////////////////////////////////////////////////////
+
+app.get('/yelp', handleYelp);
+
+function handleYelp(request, response){
+  let city = request.query.search_query;
+  let url = `https://api.yelp.com/v3/businesses/search?location=${city}`;
+
+  superagent.get(url)
+    .set('Authorization', `Bearer ${process.env.YELP_API_KEY}`)
+    .then(results => {
+      let yelpResults = results.body.businesses.map(business => {
+        return new Yelp(business);
+    })
+    response.status(200).send(yelpResults);
+});
+};
+
+function Yelp(obj){
+  this.name = obj.name;
+  this.image_url = obj.image_url;
+  this.price = obj.price;
+  this.rating = obj.rating;
+  this.url = obj.url;
+}
