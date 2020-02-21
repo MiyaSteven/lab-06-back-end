@@ -1,4 +1,5 @@
 'use strict';
+
 const express = require('express');
 const app = express();
 const superagent = require('superagent');
@@ -10,43 +11,39 @@ app.use(cors());
 const client = new pg.Client(process.env.DATABASE_URL);
 client.on('error', err => console.error(err));
 
-app.get('/add', (request, response) => {
-  let first = request.query.first;
-  let last = request.query.last;
-
-  let SQL = 'INSERT INTO people (first_name, last_name) VALUES ($1, $2)';
-  let safeValues = [first, last];
-
-  client.query(SQL, safeValues);
-});
-
-app.get('/display', (request, response) => {
-  let SQL = 'SELECT * FROM locations';
-
-  client.query(SQL)
-    .then(results => {
-      response.json(results.rows);
-    });
-});
-
 app.get('/location', (request, response) => {
   let city = request.query.city;
-  let cityData = request.city.display_name;
-  let latitude = request.city.latitude;
-  let longitude = request.city.longitde;
+  let SQL = 'SELECT * FROM locations WHERE search_query=$1;';
+  let safeValues = [city];
 
-  let SQL = 'INSERT INTO locations (city, city_data, latitude, longitude) VALUES ($1, $2, $3, $4)';
-  let safeValues = [city, cityData, latitude, longitude];
-
-  client.query(SQL, safeValues);
-});
-app.get('/display', (request, response) => {
-  let SQL = 'SELECT * FROM locations';
-  client.query(SQL)
+  client.query(SQL, safeValues)
     .then(results => {
-      response.json(results.rows);
+      if(results.rows.length > 0) {
+        response.send(results.rows[0]);
+      } else {
+        let url = `https://us1.locationiq.com/v1/search.php?key=${process.env.GEOCODE_API}&q=${city}&format=json`;
+
+        superagent.get(url)
+          .then(results => {
+            let geoData = results.body;
+            let location = new City(city, geoData[0]);
+            let sql = 'INSERT INTO locations (search_query, formatted_query, latitude, longitude) VALUES ($1, $2, $3, $4)';
+            let safeValues = [location.search_query, location.formatted_query, location.latitude, location.longitude];
+
+            client.query(sql, safeValues);
+            response.status(200).send(location);
+          });
+      }
     });
 });
+
+// app.get('/display', (request, response) => {
+//   let SQL = 'SELECT * FROM locations';
+//   client.query(SQL)
+//     .then(results => {
+//       response.json(results.rows);
+//     });
+// });
 // // .then(results => {
 // let url = `https://us1.locationiq.com/v1/search.php?key=${process.env.GEOCODE_API}&q=${city}&format=json`;
 //   response.json(results.rows);
