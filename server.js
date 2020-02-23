@@ -8,7 +8,7 @@ require('dotenv').config();
 const cors = require('cors');
 app.use(cors());
 
-const PORT = process.env.PORT || 3003;
+const PORT = process.env.PORT || 3001;
 
 const client = require('./js/client');
 const handleYelp = require('./js/food/yelp');
@@ -47,5 +47,5 @@ app.get('/weather', (request, response) => {
 
 client.connect().then(() => {
   app.listen(PORT, () => console.log(`listening on ${PORT}`));
-});
+}).catch(error => console.error(error));
 

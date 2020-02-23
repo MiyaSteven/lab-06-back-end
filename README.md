@@ -21,7 +21,8 @@ Create an application that creates a server, gets data from .json
 
 ## Credits and Collaborations
 -->
-Powerful young Teddy helped us a bit at the end.
+Powerful young Teddy helped us a bit at the end. 
+Brody's amazing github as reference. https://github.com/brody-rebne/city-explorer
 
 <!-- ///////////////////////Estimate/////////////////// -->
 
